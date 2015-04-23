@@ -1,0 +1,16 @@
+(loop)
+@first
+D=M
+@end
+D;JLE
+@second
+D=M
+@result
+M=D+M
+@first
+M=M-1
+@loop
+0;JMP
+@end
+(end)
+0;JMP
