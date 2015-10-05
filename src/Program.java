@@ -16,15 +16,19 @@ public class Program {
 		symbols = new String[100];
 		table = new int[100];
 		spot = 0;
-		
-		
-		File f = new File("program.asm");
-		Scanner makeString = new Scanner(f);
 		String s = "";
-		while(makeString.hasNextLine()){
-			s += makeString.nextLine()+"\n";
-		}
-		makeString.close();
+
+		try{
+			File f = new File("program.asm");
+			Scanner makeString = new Scanner(f);
+			while(makeString.hasNextLine()){
+				s += makeString.nextLine()+"\n";
+			}
+			makeString.close();
+        }catch(Exception e){
+			s = "(loop)\n@first\nD=M\n@end\nD;JLE\n@second\nD=M\n@result\nM=D+M\n@first\nM=M-1\n@loop\n0;JMP\n@end\n(end)\n0;JMP\n";
+        }
+
 		
 		
 		
@@ -44,7 +48,7 @@ public class Program {
 		String out = "";
 		
 		Scanner reader = new Scanner(s);
-		int lineNumber = 1;
+		int lineNumber = 0;
 		
 		while(reader.hasNextLine()){
 			String next = reader.nextLine();
