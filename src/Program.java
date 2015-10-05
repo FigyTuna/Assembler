@@ -26,6 +26,9 @@ public class Program {
 			}
 			makeString.close();
         }catch(Exception e){
+        
+        	//Default string if file can't be loaded. (phone development)
+        
 			s = "(loop)\n@first\nD=M\n@end\nD;JLE\n@second\nD=M\n@result\nM=D+M\n@first\nM=M-1\n@loop\n0;JMP\n@end\n(end)\n0;JMP\n";
         }
 
