@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.Scanner;
 
 public class Program {
@@ -19,26 +20,35 @@ public class Program {
 		String s = "";
 
 		try{
+			
 			File f = new File("program.asm");
 			Scanner makeString = new Scanner(f);
 			while(makeString.hasNextLine()){
 				s += makeString.nextLine()+"\n";
 			}
 			makeString.close();
+			
         }catch(Exception e){
         
         	//Default string if file can't be loaded. (phone development)
         
 			s = "(loop)\n@first\nD=M\n@end\nD;JLE\n@second\nD=M\n@result\nM=D+M\n@first\nM=M-1\n@loop\n0;JMP\n@end\n(end)\n0;JMP\n";
         }
-
-		
-		
 		
 		s = firstPass(s);
 		parser(s);
 		
-		p(output);
+		try{
+			
+			File f = new File("output.hack");
+			PrintStream out = new PrintStream(f);
+			out.print(output);
+			out.close();
+			System.out.println("Saved as \"output.hack\"");
+			
+		}catch(Exception e){
+			System.out.println("Couldn't save file. Printing instead:\n\n" + output);
+		}
 	}
 	public static void addSymbol(String symbol, int value){
 		//p("Added symbol ("+ symbol +" " + value +")");
@@ -119,35 +129,47 @@ public class Program {
 			String jump = "000";
 			
 			if(s.contains("=")){//destination
-				if(s.charAt(0) == 'A'){
+				switch(s.charAt(0)){
+				case('A'):
 					dest = "100";
-				}else if(s.charAt(0) == 'D'){
+				break;
+				case('D'):
 					dest = "010";
-				}else if(s.charAt(0) == 'M'){
+				break;
+				case('M'):
 					dest = "001";
-				}else{
-					p("Error at: " + l);
+				break;
+				default:
+					errorAt(l);
 				}
 				s = s.substring(s.indexOf('=') + 1);
 			}
 			
 			if(s.contains(";")){//jump
-				if(s.substring(s.indexOf(";") + 1).equals("JGT")){
+				switch(s.substring(s.indexOf(";") + 1)){
+				case("JGT"):
 					jump = "001";
-				}else if(s.substring(s.indexOf(";") + 1).equals("JEQ")){
+				break;
+				case("JEQ"):
 					jump = "010";
-				}else if(s.substring(s.indexOf(";") + 1).equals("JGE")){
+				break;
+				case("JGE"):
 					jump = "011";
-				}else if(s.substring(s.indexOf(";") + 1).equals("JLT")){
+				break;
+				case("JLT"):
 					jump = "100";
-				}else if(s.substring(s.indexOf(";") + 1).equals("JNE")){
+				break;
+				case("JNE"):
 					jump = "101";
-				}else if(s.substring(s.indexOf(";") + 1).equals("JLE")){
+				break;
+				case("JLE"):
 					jump = "110";
-				}else if(s.substring(s.indexOf(";") + 1).equals("JMP")){
+				break;
+				case("JMP"):
 					jump = "111";
-				}else{
-					p("Error at: " + l);
+				break;
+				default:
+					errorAt(l);
 				}
 				s = s.substring(0, s.indexOf(";"));
 			}
@@ -165,48 +187,70 @@ public class Program {
 				s = temp;
 			}
 			
-			if(s.equals("0")){
+			switch(s){
+			case("0"):
 				compute = "101010";
-			}else if(s.equals("1")){
+			break;
+			case("1"):
 				compute = "111111";
-			}else if(s.equals("-1")){
+			break;
+			case("-1"):
 				compute = "111010";
-			}else if(s.equals("D")){
+			break;
+			case("D"):
 				compute = "001100";
-			}else if(s.equals("A")){
+			break;
+			case("A"):
 				compute = "110000";
-			}else if(s.equals("!D")){
+			break;
+			case("!D"):
 				compute = "001101";
-			}else if(s.equals("!A")){
+			break;
+			case("!A"):
 				compute = "110001";
-			}else if(s.equals("-D")){
+			break;
+			case("-D"):
 				compute = "001111";
-			}else if(s.equals("-A")){
+			break;
+			case("-A"):
 				compute = "110011";
-			}else if(s.equals("D+1")){
+			break;
+			case("D+1"):
 				compute = "011111";
-			}else if(s.equals("A+1")){
+			break;
+			case("A+1"):
 				compute = "110111";
-			}else if(s.equals("D-1")){
+			break;
+			case("D-1"):
 				compute = "001110";
-			}else if(s.equals("A-1")){
-				compute = "110010";
-			}else if(s.equals("D+A")){
+			break;
+			case("A-1"):
+				compute = "110010";//
+			break;
+			case("D+A"):
 				compute = "000010";
-			}else if(s.equals("D-A")){
+			break;
+			case("D-A"):
 				compute = "010011";
-			}else if(s.equals("A-D")){
+			break;
+			case("A-D"):
 				compute = "000111";
-			}else if(s.equals("D&A")){
+			break;
+			case("D&A"):
 				compute = "000000";
-			}else if(s.equals("D|A")){
+			break;
+			case("D|A"):
 				compute = "010101";
-			}else{
-				p("Error at: " + l);
+			break;
+			default:
+				errorAt(l);
 			}
 			
 			printC(ram, compute, dest, jump);
 		}
+	}
+	public static void errorAt(int line){
+		p("Error at: " + line);
 	}
 	public static void printA(int a){
 		String toOut = Integer.toBinaryString(a);
